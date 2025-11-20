@@ -14,6 +14,7 @@ public class MainMenuController : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private CanvasGroup menuRoot;
     [SerializeField] private GameObject tapToPlayLayer;
+    [SerializeField] private GameObject skinSliderRoot;
     [SerializeField] private Button playButton;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button settingsButton;
@@ -37,10 +38,12 @@ public class MainMenuController : MonoBehaviour
     {
         if (gameDef == null) return;
 
-        if (logoImage)       logoImage.sprite = gameDef.logo;
+        if (logoImage) logoImage.sprite = gameDef.logo;
         if (backgroundImage) backgroundImage.sprite = gameDef.background;
 
         if (shopButton) shopButton.gameObject.SetActive(gameDef.hasShop);
+        if (skinSliderRoot) skinSliderRoot.SetActive(gameDef.hasSkin);
+
     }
 
     private void LoadUIValues()
@@ -79,10 +82,10 @@ public class MainMenuController : MonoBehaviour
 
     private void HookButtons()
     {
-        if (playButton)    playButton.onClick.AddListener(OnPlayClicked);
-      //  if (shopButton)    shopButton.onClick.AddListener(() => TogglePanel<ShopPanel>(true));
-     //   if (settingsButton)settingsButton.onClick.AddListener(() => TogglePanel<SettingsPanel>(true));
-        if (quitButton)    quitButton.onClick.AddListener(OnQuitClicked);
+        if (playButton) playButton.onClick.AddListener(OnPlayClicked);
+        //  if (shopButton)    shopButton.onClick.AddListener(() => TogglePanel<ShopPanel>(true));
+        //   if (settingsButton)settingsButton.onClick.AddListener(() => TogglePanel<SettingsPanel>(true));
+        if (quitButton) quitButton.onClick.AddListener(OnQuitClicked);
     }
 
     private void OnPlayClicked()
