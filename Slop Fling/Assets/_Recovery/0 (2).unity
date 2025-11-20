@@ -485,13 +485,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.012600892, z: 0, w: 0.9999206}
+  m_LocalRotation: {x: 0.0754626, y: 0.01256076, z: 0.00095067476, w: -0.99706906}
   m_LocalPosition: {x: 0.13, y: 1.9, z: -9.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -1.444, z: 0}
+  m_LocalEulerAnglesHint: {x: -8.656, y: -1.444, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1059,12 +1059,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f3895ec31cab474ba5e797fac4d276e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallController
-  jumpSpeed: 12
+  jumpHeight: 3
+  jumpDuration: 0.25
   holdDuration: 1.2
-  attachRayDistance: 10
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 1
 --- !u!54 &527154247
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1516,7 +1513,7 @@ MonoBehaviour:
   blockPrefab: {fileID: 7897967863272552023, guid: 940706717d1df4fe9bd9d4f543494d70, type: 3}
   brickPrefab: {fileID: 8505695093962193059, guid: 4c9f1539c53e44cb5a8c22d78f6939ed, type: 3}
   coinPrefab: {fileID: 698437192906522747, guid: 5a1700b5e4b0c4ac9a26e221a98114b8, type: 3}
-  verticalStep: 1.05
+  verticalStep: 0
   spawnAheadDistance: 30
   despawnBelowDistance: 10
   prewarmCount: 10
@@ -2307,7 +2304,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1326966522}
   m_Layer: 0
-  m_Name: SpawnOrigin
+  m_Name: SpawnOrigion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2322,7 +2319,7 @@ Transform:
   m_GameObject: {fileID: 1326966521}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.2, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
