@@ -2140,13 +2140,13 @@ MonoBehaviour:
   m_OverrideSceneCullingMask: 6917529027641081856
   m_SceneIsLit: 1
   m_SceneLighting: 1
-  m_2DMode: 0
+  m_2DMode: 1
   m_isRotationLocked: 0
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 0, y: 1.18, z: 0}
+    m_Target: {x: 615.3259, y: 1184.9053, z: -9.698238}
     speed: 2
     m_Value: {x: 0, y: 1.18, z: 0}
   m_RenderMode: 0
@@ -2194,15 +2194,15 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.22765008, y: -0.034464955, z: 0.008062623, w: -0.973103}
+    m_Target: {x: 0, y: 0, z: 0, w: 1}
     speed: 2
     m_Value: {x: -0.22765008, y: -0.034464955, z: 0.008062623, w: -0.973103}
   m_Size:
-    m_Target: 3.3344698
+    m_Target: 1072.8843
     speed: 2
     m_Value: 3.3344698
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
     m_Value: 0
   m_CameraSettings:
@@ -2218,7 +2218,7 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
+  m_LastSceneViewRotation: {x: -0.22765008, y: -0.034464955, z: 0.008062623, w: -0.973103}
   m_LastSceneViewOrtho: 0
   m_Viewpoint:
     m_SceneView: {fileID: 19}

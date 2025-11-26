@@ -11,20 +11,29 @@ public class BallController : MonoBehaviour
     [Header("Attach / Raycast")]
     [SerializeField] private float attachRayDistance = 10f;
     [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private Transform camTransform;
+    [SerializeField] private float deathBelowCam = 5f;
 
     private Rigidbody rb;
     private bool canControl = false;
     private bool isHolding = false;      // trước là isAttached
     private Coroutine holdRoutine;
+    private Vector3 _startPos;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        _startPos = transform.position;
         rb.useGravity = true;
 
         rb.constraints = RigidbodyConstraints.FreezePositionX |
                          RigidbodyConstraints.FreezePositionZ |
                          RigidbodyConstraints.FreezeRotation;
+    }
+    private void Start()
+    {
+        if (!camTransform && Camera.main != null)
+            camTransform = Camera.main.transform;
     }
 
     public void SetIdleState()
@@ -37,6 +46,7 @@ public class BallController : MonoBehaviour
             StopCoroutine(holdRoutine);
             holdRoutine = null;
         }
+        transform.position = _startPos;
 
         rb.isKinematic = true;
         rb.linearVelocity = Vector3.zero;
@@ -53,6 +63,10 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
+        // Nếu game over thì không cho điều khiển nữa
+        if (GameSession.Instance != null && GameSession.Instance.IsGameOver)
+            return;
+
         if (!canControl || isHolding)
             return;
 
@@ -60,7 +74,21 @@ public class BallController : MonoBehaviour
         {
             TryAttachToWall();
         }
+        if (camTransform != null && GameSession.Instance != null && !GameSession.Instance.IsGameOver)
+        {
+            float camBottomY = camTransform.position.y - deathBelowCam;
+            if (transform.position.y < camBottomY)
+            {
+                Debug.Log("Ball fell out of camera → Game Over");
+                canControl = false;
+                rb.isKinematic = true;
+                rb.linearVelocity = Vector3.zero;
+
+                GameSession.Instance.GameOverFromFall();
+            }
+        }
     }
+
 
     private void FlingUp()
     {
@@ -76,7 +104,15 @@ public class BallController : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, attachRayDistance, obstacleMask))
         {
-            // Fling thành công → chỉ HOLD tại chỗ
+            // 👉 Lấy obstacle & báo cho GameSession
+            Obstacle obstacle = hit.collider.GetComponentInParent<Obstacle>();
+            if (obstacle != null)
+            {
+                GameSession.Instance?.HandleObstacleHit(obstacle);
+                Debug.Log("TryAttachToWall: " + obstacle.name);
+            }
+
+            // 👉 Fling thành công → hold tại chỗ rồi bật lên lại
             if (holdRoutine != null)
                 StopCoroutine(holdRoutine);
 
@@ -84,9 +120,10 @@ public class BallController : MonoBehaviour
         }
         else
         {
-            // Miss: không làm gì, ball tiếp tục rơi tự do
+            // Miss → không gì, ball rơi tiếp
         }
     }
+
 
     private IEnumerator HoldAndFling()
     {
@@ -110,4 +147,5 @@ public class BallController : MonoBehaviour
 
         FlingUp();
     }
+
 }

@@ -35,11 +35,12 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("Probabilities (sum ≈ 1.0)")]
     [Range(0f, 1f)] public float blockWeight = 0.4f;
     [Range(0f, 1f)] public float brickWeight = 0.4f;
-    [Range(0f, 1f)] public float coinWeight  = 0.2f;
+    [Range(0f, 1f)] public float coinWeight = 0.2f;
 
     private float _highestY;     // Y cao nhất đã spawn
     private bool _running = false;
     private float _obstacleX;    // X cố định bên phải (theo spawnOrigin)
+    private float _initialHighestY;
 
     private void OnEnable()
     {
@@ -66,6 +67,7 @@ public class ObstacleSpawner : MonoBehaviour
 
         // Y hiện tại = vị trí spawnOrigin (hàng đầu tiên)
         _highestY = spawnOrigin.position.y;
+        _initialHighestY = _highestY;
     }
 
     private void HandleGameStart()
@@ -133,7 +135,7 @@ public class ObstacleSpawner : MonoBehaviour
         {
             case ObstacleType.Block: return blockPrefab;
             case ObstacleType.Brick: return brickPrefab;
-            case ObstacleType.Coin:  return coinPrefab;
+            case ObstacleType.Coin: return coinPrefab;
         }
         return null;
     }
@@ -152,5 +154,16 @@ public class ObstacleSpawner : MonoBehaviour
                 Destroy(child.gameObject); // sau này đổi thành trả về pool
             }
         }
+    }
+    public void ResetToMenu()
+    {
+        _running = false;
+
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+
+        _highestY = _initialHighestY;
     }
 }

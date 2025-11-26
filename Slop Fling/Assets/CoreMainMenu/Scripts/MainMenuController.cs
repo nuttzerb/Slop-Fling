@@ -45,16 +45,37 @@ public class MainMenuController : MonoBehaviour
         if (skinSliderRoot) skinSliderRoot.SetActive(gameDef.hasSkin);
 
     }
+    public static void TriggerGameStartFromOutside()
+    {
+        OnGameStart?.Invoke();
+    }
 
-    private void LoadUIValues()
+    public void ShowMenu()
+    {
+        if (menuRoot)
+        {
+            menuRoot.alpha = 1f;
+            menuRoot.blocksRaycasts = true;
+            menuRoot.interactable = true;
+        }
+
+        if (tapToPlayLayer && gameDef.startMode == GameStartMode.SingleSceneTapToPlay)
+        {
+            tapToPlayLayer.SetActive(true);
+        }
+
+        LoadUIValues();
+    }
+    public void LoadUIValues()
     {
         if (!gameDef) return;
 
         int hs = PlayerPrefs.GetInt($"{gameDef.gameId}_HighScore", 0);
-        if (highScoreText) highScoreText.text = $"Best: {hs}";
+        Debug.Log("aaaa hs: "+hs);
+        if (highScoreText) highScoreText.text = $"HighScore : {hs}";
 
         int coins = PlayerPrefs.GetInt($"{gameDef.gameId}_Coins", 0);
-        if (currencyText) currencyText.text = coins.ToString();
+        if (currencyText) currencyText.text = $"Total Coins: {coins}";
     }
 
     private void SetupStartModeUI()
