@@ -61,6 +61,8 @@ public class GameSession : MonoBehaviour
         OnLivesChanged?.Invoke(Lives);
 
         OnGameStarted?.Invoke();
+        SoundManager.Instance?.PlayBgm(SoundId.Bgm_Gameplay, true);
+
     }
 
 
@@ -72,14 +74,20 @@ public class GameSession : MonoBehaviour
         {
             case ObstacleType.Coin:
                 AddCoins(10);
+                SoundManager.Instance?.PlaySfx(SoundId.Sfx_HitCoin);
+
                 break;
 
             case ObstacleType.Brick:
                 AddScore(15);
+                SoundManager.Instance?.PlaySfx(SoundId.Sfx_HitBrick);
+
                 break;
 
             case ObstacleType.Block:
                 TakeHit(1);
+                SoundManager.Instance?.PlaySfx(SoundId.Sfx_HitBlock);
+
                 break;
         }
 
@@ -132,6 +140,8 @@ public class GameSession : MonoBehaviour
 
         OnGameOver?.Invoke();
         OnGameEnded?.Invoke();
+        SoundManager.Instance?.PlaySfx(SoundId.Sfx_Dead);
+
     }
     public void GameOverFromFall()
     {

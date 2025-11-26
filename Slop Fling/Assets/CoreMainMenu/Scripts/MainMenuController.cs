@@ -25,6 +25,9 @@ public class MainMenuController : MonoBehaviour
 
     [SerializeField] private Image logoImage;
     [SerializeField] private Image backgroundImage;
+    [SerializeField] private Button closeSettingsButton;
+
+    [SerializeField] private GameObject settingPanel;
 
     private void Awake()
     {
@@ -33,7 +36,12 @@ public class MainMenuController : MonoBehaviour
         HookButtons();
         LoadUIValues();
     }
+    private void OnDisable()
+    {
+        if (settingsButton) settingsButton.onClick.RemoveListener(() => TogglePanel(settingPanel, true));
+        if (closeSettingsButton) closeSettingsButton.onClick.RemoveListener(() => TogglePanel(settingPanel, false));
 
+    }
     private void ApplyConfig()
     {
         if (gameDef == null) return;
@@ -63,6 +71,7 @@ public class MainMenuController : MonoBehaviour
         {
             tapToPlayLayer.SetActive(true);
         }
+        SoundManager.Instance?.PlayBgm(SoundId.Bgm_Menu, true);
 
         LoadUIValues();
     }
@@ -104,7 +113,9 @@ public class MainMenuController : MonoBehaviour
     {
         if (playButton) playButton.onClick.AddListener(OnPlayClicked);
         //  if (shopButton)    shopButton.onClick.AddListener(() => TogglePanel<ShopPanel>(true));
-        //   if (settingsButton)settingsButton.onClick.AddListener(() => TogglePanel<SettingsPanel>(true));
+        if (settingsButton) settingsButton.onClick.AddListener(() => TogglePanel(settingPanel, true));
+        if (closeSettingsButton) closeSettingsButton.onClick.AddListener(() => TogglePanel(settingPanel, false));
+
         if (quitButton) quitButton.onClick.AddListener(OnQuitClicked);
     }
 
@@ -134,6 +145,10 @@ public class MainMenuController : MonoBehaviour
         if (tapToPlayLayer) tapToPlayLayer.SetActive(false);
 
         OnGameStart?.Invoke();
+    }
+    private void TogglePanel(GameObject gameObject, bool state)
+    {
+        if (gameObject) gameObject.SetActive(state);
     }
 
     private void TogglePanel<T>(bool state) where T : MonoBehaviour

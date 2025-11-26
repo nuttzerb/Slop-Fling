@@ -136,6 +136,8 @@ public class BallController : MonoBehaviour
                 StopCoroutine(holdRoutine);
 
             holdRoutine = StartCoroutine(HoldAndFling());
+            
+            SoundManager.Instance?.PlaySfx(SoundId.Sfx_StickFire);
         }
         else
         {

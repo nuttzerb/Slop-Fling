@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88ffb5d3a01cc463f9669a724c113d84, type: 3}
+  m_Name: Sound Library
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  entries:
+  - id: 0
+    clip: {fileID: 8300000, guid: 997c1bb46ac4d4d3f9e4628b291ee27d, type: 3}
+    volume: 0.2
+  - id: 2
+    clip: {fileID: 8300000, guid: f429bf3f7347a47ea9ed60ca22244f4f, type: 3}
+    volume: 1
+  - id: 3
+    clip: {fileID: 8300000, guid: a587ad39db73f4a2f9bc15956ae33a8b, type: 3}
+    volume: 1
+  - id: 4
+    clip: {fileID: 8300000, guid: 6071d0e9d46974c9994bdb0680723bab, type: 3}
+    volume: 1
+  - id: 5
+    clip: {fileID: 8300000, guid: ba5668f26bf8e4cecbe5d1a41260f093, type: 3}
+    volume: 1
+  - id: 1
+    clip: {fileID: 8300000, guid: 997c1bb46ac4d4d3f9e4628b291ee27d, type: 3}
+    volume: 1
+  - id: 6
+    clip: {fileID: 8300000, guid: eedf93462af7449a99462cc13cc32317, type: 3}
+    volume: 1
+  - id: 7
+    clip: {fileID: 0}
+    volume: 1
