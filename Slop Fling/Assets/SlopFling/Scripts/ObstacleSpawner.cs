@@ -1,18 +1,11 @@
-using System;
 using UnityEngine;
-
-public enum ObstacleType
-{
-    Block,
-    Brick,
-    Coin
-}
+using UnityEngine.Pool;
 
 public class ObstacleSpawner : MonoBehaviour
 {
     [Header("Refs")]
-    [SerializeField] private Transform followTarget;   // Ball (hoặc camera) – dùng để biết đã đi cao tới đâu
-    [SerializeField] private Transform spawnOrigin;    // Đặt empty này ở VỊ TRÍ OBSTACLE BÊN PHẢI, ngay hàng đầu tiên
+    [SerializeField] private Transform followTarget;  
+    [SerializeField] private Transform spawnOrigin;   
 
     [Header("Prefabs")]
     [SerializeField] private GameObject blockPrefab;
@@ -35,12 +28,17 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("Probabilities (sum ≈ 1.0)")]
     [Range(0f, 1f)] public float blockWeight = 0.4f;
     [Range(0f, 1f)] public float brickWeight = 0.4f;
-    [Range(0f, 1f)] public float coinWeight = 0.2f;
+    [Range(0f, 1f)] public float coinWeight  = 0.2f;
 
-    private float _highestY;     // Y cao nhất đã spawn
-    private bool _running = false;
-    private float _obstacleX;    // X cố định bên phải (theo spawnOrigin)
+    private float _highestY;
     private float _initialHighestY;
+    private float _obstacleX;
+    private bool  _running = false;
+
+    // Pools
+    private ObjectPool<GameObject> _blockPool;
+    private ObjectPool<GameObject> _brickPool;
+    private ObjectPool<GameObject> _coinPool;
 
     private void OnEnable()
     {
@@ -52,22 +50,55 @@ public class ObstacleSpawner : MonoBehaviour
         MainMenuController.OnGameStart -= HandleGameStart;
     }
 
+    private void Awake()
+    {
+        if (!spawnOrigin)
+            spawnOrigin = transform;
+
+        _obstacleX       = spawnOrigin.position.x;
+        _highestY        = spawnOrigin.position.y;
+        _initialHighestY = _highestY;
+
+        if (blockPrefab) _blockPool = CreatePool(blockPrefab);
+        if (brickPrefab) _brickPool = CreatePool(brickPrefab);
+        if (coinPrefab)  _coinPool  = CreatePool(coinPrefab);
+    }
+
+    private ObjectPool<GameObject> CreatePool(GameObject prefab)
+    {
+        return new ObjectPool<GameObject>(
+            createFunc: () =>
+            {
+                var obj = Instantiate(prefab);
+                obj.SetActive(false);
+                return obj;
+            },
+            actionOnGet: obj =>
+            {
+                obj.SetActive(true);
+            },
+            actionOnRelease: obj =>
+            {
+                obj.SetActive(false);
+                obj.transform.SetParent(null); 
+
+                var obs = obj.GetComponent<Obstacle>();
+                if (obs != null)
+                    obs.ResetForReuse();
+            },
+            actionOnDestroy: obj => Destroy(obj),
+            collectionCheck: false,
+            defaultCapacity: 16,
+            maxSize: 128
+        );
+    }
+
     private void Start()
     {
         if (!followTarget)
         {
             Debug.LogWarning("[ObstacleSpawner] followTarget chưa gán.");
         }
-
-        if (!spawnOrigin)
-            spawnOrigin = transform;
-
-        // X bên phải được lấy theo spawnOrigin
-        _obstacleX = spawnOrigin.position.x;
-
-        // Y hiện tại = vị trí spawnOrigin (hàng đầu tiên)
-        _highestY = spawnOrigin.position.y;
-        _initialHighestY = _highestY;
     }
 
     private void HandleGameStart()
@@ -80,7 +111,6 @@ public class ObstacleSpawner : MonoBehaviour
     {
         if (!_running || !followTarget) return;
 
-        // Spawn thêm khi chưa đủ "ahead distance"
         while (_highestY < followTarget.position.y + spawnAheadDistance)
         {
             _highestY += verticalStep;
@@ -106,14 +136,59 @@ public class ObstacleSpawner : MonoBehaviour
     private void SpawnOneAtY(float y)
     {
         ObstacleType type = GetRandomType();
-        GameObject prefab = GetPrefab(type);
-        if (!prefab) return;
+        GameObject obj    = GetFromPool(type);
+        if (!obj) return;
 
-        // Obstacles luôn ở X cố định bên phải, chỉ đổi Y
         Vector3 pos = new Vector3(_obstacleX, y, spawnOrigin.position.z);
 
-        GameObject obj = Instantiate(prefab, pos, Quaternion.identity, transform);
+        obj.transform.SetParent(transform, true);
+        obj.transform.position = pos;
+        obj.transform.rotation = Quaternion.identity;
         obj.name = $"Obstacle_{type}_{y:0.0}";
+
+        var obs = obj.GetComponent<Obstacle>();
+        if (obs != null)
+        {
+            obs.type = type;
+            obs.RequestDespawn = HandleObstacleDespawn;
+            obs.ResetForReuse(); 
+        }
+    }
+
+    private GameObject GetFromPool(ObstacleType type)
+    {
+        switch (type)
+        {
+            case ObstacleType.Block: return _blockPool?.Get();
+            case ObstacleType.Brick: return _brickPool?.Get();
+            case ObstacleType.Coin:  return _coinPool?.Get();
+        }
+        return null;
+    }
+
+    private void HandleObstacleDespawn(Obstacle obs)
+    {
+        if (obs == null) return;
+
+        obs.transform.SetParent(null);
+
+        switch (obs.type)
+        {
+            case ObstacleType.Block:
+                if (_blockPool != null) _blockPool.Release(obs.gameObject);
+                else Destroy(obs.gameObject);
+                break;
+
+            case ObstacleType.Brick:
+                if (_brickPool != null) _brickPool.Release(obs.gameObject);
+                else Destroy(obs.gameObject);
+                break;
+
+            case ObstacleType.Coin:
+                if (_coinPool != null) _coinPool.Release(obs.gameObject);
+                else Destroy(obs.gameObject);
+                break;
+        }
     }
 
     private ObstacleType GetRandomType()
@@ -129,17 +204,6 @@ public class ObstacleSpawner : MonoBehaviour
         return ObstacleType.Coin;
     }
 
-    private GameObject GetPrefab(ObstacleType type)
-    {
-        switch (type)
-        {
-            case ObstacleType.Block: return blockPrefab;
-            case ObstacleType.Brick: return brickPrefab;
-            case ObstacleType.Coin: return coinPrefab;
-        }
-        return null;
-    }
-
     private void DespawnLowObstacles()
     {
         if (!followTarget) return;
@@ -151,17 +215,22 @@ public class ObstacleSpawner : MonoBehaviour
             Transform child = transform.GetChild(i);
             if (child.position.y < cutoff)
             {
-                Destroy(child.gameObject); // sau này đổi thành trả về pool
+                var obs = child.GetComponent<Obstacle>();
+                if (obs != null)
+                    obs.SafeDespawn();    
             }
         }
     }
+
     public void ResetToMenu()
     {
         _running = false;
 
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
-            Destroy(transform.GetChild(i).gameObject);
+            var obs = transform.GetChild(i).GetComponent<Obstacle>();
+            if (obs != null)
+                obs.SafeDespawn();
         }
 
         _highestY = _initialHighestY;

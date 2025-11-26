@@ -1,4 +1,12 @@
+using System;
 using UnityEngine;
+
+public enum ObstacleType
+{
+    Block,
+    Brick,
+    Coin
+}
 
 public class Obstacle : MonoBehaviour
 {
@@ -8,12 +16,18 @@ public class Obstacle : MonoBehaviour
     [SerializeField] private Renderer brickRenderer;
     [SerializeField] private Color brickHitColor = Color.green;
 
-    private bool _wasHit;
+    public Action<Obstacle> RequestDespawn;
 
-    /// <summary>
-    /// Gọi khi ball fling trúng (chỉ 1 lần).
-    /// Visual nằm trong này, logic score/mạng để GameSession xử lý.
-    /// </summary>
+    private bool _wasHit;
+    private bool _isInPool;        
+    private Color _brickOriginalColor;
+
+    private void Awake()
+    {
+        if (brickRenderer != null)
+            _brickOriginalColor = brickRenderer.material.color;
+    }
+
     public void OnHitVisual()
     {
         if (_wasHit) return;
@@ -24,10 +38,29 @@ public class Obstacle : MonoBehaviour
             brickRenderer.material.color = brickHitColor;
         }
 
-        // Coin có thể Destroy sau khi ăn, Block/Brick thì tuỳ bạn
         if (type == ObstacleType.Coin)
         {
-            Destroy(gameObject);
+            SafeDespawn();
         }
+    }
+
+    public void SafeDespawn()
+    {
+        if (_isInPool) return; 
+        _isInPool = true;
+
+        if (RequestDespawn != null)
+            RequestDespawn(this);
+        else
+            Destroy(gameObject);
+    }
+
+    public void ResetForReuse()
+    {
+        _wasHit = false;
+        _isInPool = false;
+
+        if (brickRenderer != null)
+            brickRenderer.material.color = _brickOriginalColor;
     }
 }
