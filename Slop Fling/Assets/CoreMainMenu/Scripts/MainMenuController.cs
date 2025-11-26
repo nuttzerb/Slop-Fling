@@ -71,7 +71,6 @@ public class MainMenuController : MonoBehaviour
         if (!gameDef) return;
 
         int hs = PlayerPrefs.GetInt($"{gameDef.gameId}_HighScore", 0);
-        Debug.Log("aaaa hs: "+hs);
         if (highScoreText) highScoreText.text = $"HighScore : {hs}";
 
         int coins = PlayerPrefs.GetInt($"{gameDef.gameId}_Coins", 0);

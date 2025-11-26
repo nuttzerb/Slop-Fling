@@ -13,6 +13,9 @@ public class BallController : MonoBehaviour
     [SerializeField] private LayerMask obstacleMask;
     [SerializeField] private Transform camTransform;
     [SerializeField] private float deathBelowCam = 5f;
+    [Header("Stick Visual")]
+    [SerializeField] private StickVisual stickPrefab;
+    private StickVisual _currentStick;
 
     private Rigidbody rb;
     private bool canControl = false;
@@ -46,11 +49,19 @@ public class BallController : MonoBehaviour
             StopCoroutine(holdRoutine);
             holdRoutine = null;
         }
+
+        if (_currentStick)
+        {
+            Destroy(_currentStick.gameObject);
+            _currentStick = null;
+        }
+
         transform.position = _startPos;
 
         rb.isKinematic = true;
         rb.linearVelocity = Vector3.zero;
     }
+
 
     public void BeginGameplay()
     {
@@ -104,7 +115,6 @@ public class BallController : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, attachRayDistance, obstacleMask))
         {
-            // 👉 Lấy obstacle & báo cho GameSession
             Obstacle obstacle = hit.collider.GetComponentInParent<Obstacle>();
             if (obstacle != null)
             {
@@ -112,7 +122,16 @@ public class BallController : MonoBehaviour
                 Debug.Log("TryAttachToWall: " + obstacle.name);
             }
 
-            // 👉 Fling thành công → hold tại chỗ rồi bật lên lại
+            // 🔥 Spawn visual gậy thẳng
+            if (stickPrefab != null)
+            {
+                if (_currentStick)
+                    Destroy(_currentStick.gameObject);
+
+                _currentStick = Instantiate(stickPrefab);
+                _currentStick.Attach(transform, hit.point);
+            }
+
             if (holdRoutine != null)
                 StopCoroutine(holdRoutine);
 
@@ -120,9 +139,10 @@ public class BallController : MonoBehaviour
         }
         else
         {
-            // Miss → không gì, ball rơi tiếp
+            // miss thì không gì, ball rơi tiếp
         }
     }
+
 
 
     private IEnumerator HoldAndFling()
@@ -133,12 +153,18 @@ public class BallController : MonoBehaviour
         rb.isKinematic = true;
         rb.linearVelocity = Vector3.zero;
 
-        // GIỮ NGUYÊN VỊ TRÍ HIỆN TẠI
         Vector3 holdPos = transform.position;
         transform.position = holdPos;
 
         // Hold 1.2s
         yield return new WaitForSeconds(holdDuration);
+
+        // 🔥 Cho gậy uốn cong & biến mất
+        if (_currentStick != null)
+        {
+            _currentStick.Release();
+            _currentStick = null;
+        }
 
         // Bật vật lý lại và nảy lên
         rb.isKinematic = false;
@@ -147,5 +173,6 @@ public class BallController : MonoBehaviour
 
         FlingUp();
     }
+
 
 }
