@@ -83,6 +83,7 @@ public class BallController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            VfxManager.Instance?.PlayStickShoot(transform.position, Vector3.right);
             TryAttachToWall();
         }
         if (camTransform != null && GameSession.Instance != null && !GameSession.Instance.IsGameOver)
@@ -122,7 +123,8 @@ public class BallController : MonoBehaviour
                 Debug.Log("TryAttachToWall: " + obstacle.name);
             }
 
-            // 🔥 Spawn visual gậy thẳng
+            SoundManager.Instance?.PlaySfx(SoundId.Sfx_StickFire);
+
             if (stickPrefab != null)
             {
                 if (_currentStick)
@@ -136,14 +138,13 @@ public class BallController : MonoBehaviour
                 StopCoroutine(holdRoutine);
 
             holdRoutine = StartCoroutine(HoldAndFling());
-            
-            SoundManager.Instance?.PlaySfx(SoundId.Sfx_StickFire);
         }
         else
         {
-            // miss thì không gì, ball rơi tiếp
+            // miss → rơi tự do
         }
     }
+
 
 
 

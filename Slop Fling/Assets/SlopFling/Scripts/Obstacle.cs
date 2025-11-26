@@ -19,7 +19,7 @@ public class Obstacle : MonoBehaviour
     public Action<Obstacle> RequestDespawn;
 
     private bool _wasHit;
-    private bool _isInPool;        
+    private bool _isInPool;
     private Color _brickOriginalColor;
 
     private void Awake()
@@ -36,17 +36,27 @@ public class Obstacle : MonoBehaviour
         if (type == ObstacleType.Brick && brickRenderer != null)
         {
             brickRenderer.material.color = brickHitColor;
+
+            Vector3 pos = brickRenderer.bounds.center;
+            VfxManager.Instance?.PlayBrickHit(pos, Vector3.left);
         }
 
         if (type == ObstacleType.Coin)
         {
-            SafeDespawn();
+            Vector3 pos = transform.position;
+            VfxManager.Instance?.PlayCoinHit(pos, Vector3.left);
+
+            if (RequestDespawn != null)
+                RequestDespawn(this);
+            else
+                Destroy(gameObject);
         }
     }
 
+
     public void SafeDespawn()
     {
-        if (_isInPool) return; 
+        if (_isInPool) return;
         _isInPool = true;
 
         if (RequestDespawn != null)
